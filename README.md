@@ -48,3 +48,7 @@ This tool will have several limitations in it's current state.
 1. It will not check for manufacturability of the coil
 1. It will not check all conditions of if it will make a shape that's not plausible.
 1. At it's current setup, it will only generate a 2 layer configuration. 
+
+## To dos!
+
+1. TODO: Account for trace thickness in gap creation.  
