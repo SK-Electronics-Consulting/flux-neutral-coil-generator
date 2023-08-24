@@ -126,12 +126,52 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
         for ii in range (1, self.turns):
             self.draw.Line(arc_start_x,                   -arc_start_y + ii*pitch,
                            arc_start_x + via_gap + pitch, -arc_start_y + ii*pitch)
+            
+        # Draw alternating Horizontal Lines for Vias
         
+        for ii in range (self.turns):
+            if ((ii % 2)==1):
+                self.draw.SetLayer(pcbnew.F_Cu) 
+            else:
+                self.draw.SetLayer(pcbnew.B_Cu)
+            self.draw.Line(arc_start_x,           arc_start_y - ii*pitch,
+                           arc_start_x + via_gap, arc_start_y - ii*pitch)
+            
+            if ((ii % 2)==1):
+                self.draw.SetLayer(pcbnew.B_Cu) 
+            else:
+                self.draw.SetLayer(pcbnew.F_Cu)
+            
+            self.draw.Line(-arc_start_x,           arc_start_y - ii*pitch,
+                           -arc_start_x - via_gap, arc_start_y - ii*pitch)
 
         # Draw Vias
-        pad = PadMaker.THRoundPad(self.via_ann_ring+self.via_hole/2, 
-                                  self.via_hole)
+        via_d = self.via_ann_ring*2 + self.via_hole
+        pad = pcbnew.PAD(self.module)
+        pad.SetSize(pcbnew.VECTOR2I(via_d,via_d))
+        pad.SetShape(pcbnew.PAD_SHAPE_CIRCLE)
+        pad.SetAttribute(pcbnew.PAD_ATTRIB_PTH)
+        pad.SetLayerSet(pad.PTHMask())
+        pad.SetDrillSize(pcbnew.VECTOR2I(self.via_hole, self.via_hole))
 
+        for ii in range(self.turns):
+            if ((ii % 2)==1):
+                offset = via_gap
+            else:
+                offset = 0
+            pos = pcbnew.VECTOR2I(int(arc_start_x + offset),
+                                  int(arc_start_y - ii*pitch))
+            pad.SetPosition(pos)
+            pad.SetPos0(pos)
+            self.module.Add(pad)
+            pad = pad.Duplicate()
+
+            pos = pcbnew.VECTOR2I(int(-arc_start_x - offset),
+                                  int(arc_start_y - ii*pitch))
+            pad.SetPosition(pos)
+            pad.SetPos0(pos)
+            self.module.Add(pad)
+            pad = pad.Duplicate()
 
         # Draw tap points
 
