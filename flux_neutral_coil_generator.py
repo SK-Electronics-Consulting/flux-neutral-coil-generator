@@ -1,7 +1,6 @@
 import pcbnew
 import FootprintWizardBase
 import math
-from PadArray import PadMaker
 
 
 class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
@@ -42,9 +41,11 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
         self.stub_length = self.parameters['Coil specs']['Stub_Length']
         
     def BuildThisFootprint(self):
-        t_size = self.GetTextSize()
+        ''' Draw the outline circle as reference.  '''
         self.draw.SetLayer(pcbnew.User_1)
         self.draw.Circle(self.center_x, self.center_y, self.aperture_r)
+
+        ''' Calculate several of the internal variables needed. '''
         pitch = self.trace_space + self.trace_width/2 + max(self.trace_width/2, self.via_hole/2 + self.via_ann_ring)
 
         # Pythagorean Theorum to determine via spacing
@@ -54,8 +55,7 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
         
         self.draw.SetLineThickness(self.trace_width)
 
-        
-        # Draw large curves
+        ''' Draw the large curves defining the bulk of the coil'''
         arc_center_x = self.center_x - pitch*(self.turns-1)/2 - self.min_radius - via_gap
         arc_center_y = self.center_y
         arc_start_x = arc_center_x
@@ -71,7 +71,11 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
                           - arc_start_x,  -arc_start_y + ii*pitch ,
                           pcbnew.EDA_ANGLE( 180, pcbnew.DEGREES_T ) )
 
-        # Draw verticals
+        ''' 
+        Draw the vertical tracks for both layers.  This should be defined as the
+          center of the shape, so it's easy to calculate.  There is one track
+          which will not be the same, and it's drawn separately. 
+        '''
         start_x = (self.turns - 1) / 2 * pitch
         line_length = self.center_y + self.aperture_r - self.aperture_gap - pitch*(self.turns-1)*1.5 - self.min_radius*2 - via_gap
         
@@ -87,8 +91,12 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
             self.draw.Line(start_x - ii*pitch,  line_length,     
                            start_x - ii*pitch, -line_length)
 
-
-        # Draw small curves
+        '''
+        Draw the smaller arcs connecting the large arcs and the vertical tracks.
+        The Front layer tracks on top will be off-set because they are the ones
+        connecting the coils together.  (The second for statement in this 
+        section is the one that does this.)
+        '''
         small_arc_center_x = (self.turns - 1) / 2 * pitch + self.min_radius
         small_arc_center_y = self.center_y + self.aperture_r - self.aperture_gap - pitch*(self.turns-1)*1.5 - self.min_radius*2 - via_gap
 
@@ -120,7 +128,11 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
                               pcbnew.EDA_ANGLE( 90, pcbnew.DEGREES_T ))
 
 
-        # Draw simple Horizontal Lines
+        '''
+        Draw Horizontal Lines.  These are needed to give space to the vias for
+        stacking.  Otherwise, the coils would need to be further apart. 
+        '''
+        # Draw the simple ones first
         self.draw.SetLayer(pcbnew.B_Cu)
         for ii in range (self.turns):
             self.draw.Line(-arc_start_x,           -arc_start_y + ii*pitch,
@@ -147,7 +159,9 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
             self.draw.Line(-arc_start_x,           arc_start_y - ii*pitch,
                            -arc_start_x - via_gap, arc_start_y - ii*pitch)
 
-        # Draw Vias
+        '''
+        Draw the stitching vias between the front and back layers
+        '''
         via_d = self.via_ann_ring*2 + self.via_hole
         pad = pcbnew.PAD(self.module)
         pad.SetSize(pcbnew.VECTOR2I(via_d,via_d))
@@ -166,7 +180,7 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
             pad.SetPosition(pos)
             pad.SetPos0(pos)
             self.module.Add(pad)
-            pad = pad.Duplicate()
+            pad = pad.Duplicate()   # needed because otherwise you keep editing the same object.
 
             pos = pcbnew.VECTOR2I(int(-arc_start_x - offset),
                                   int(arc_start_y - ii*pitch))
@@ -186,10 +200,10 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
         self.draw.Arc(arc_center_x, -arc_start_y - aa, 
                       arc_center_x, -arc_start_y, pcbnew.EDA_ANGLE( -90, pcbnew.DEGREES_T ))
         self.draw.Line(arc_center_x + aa, -arc_start_y - aa,
-                       arc_center_x + aa, -arc_start_y - self.stub_length)
+                       arc_center_x + aa, -arc_start_y - aa - self.stub_length)
         
         #Add Pad for one side of the coil
-        pos = pcbnew.VECTOR2I(int(arc_center_x + aa), int(-arc_start_y - self.stub_length))
+        pos = pcbnew.VECTOR2I(int(arc_center_x + aa), int(-arc_start_y - aa - self.stub_length))
         pad = pcbnew.PAD(self.module)
         pad.SetSize(pcbnew.VECTOR2I(self.trace_width,via_d))
         pad.SetAttribute(pcbnew.PAD_ATTRIB_SMD)
@@ -202,13 +216,12 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
         pad.SetLayer(pcbnew.F_Cu)
         self.module.Add(pad)
 
-        # Diagonal Stub to get to via
+        # Diagonal track to get to via
         self.draw.Line(-start_x,      -line_length + aa*2,
                        -start_x - aa, -line_length + aa)
         #Add Via
+        pos = pcbnew.VECTOR2I(int(-start_x - aa), int(-line_length + aa))
         pad = pcbnew.PAD(self.module)
-        pos = pcbnew.VECTOR2I(int(-start_x - aa),
-                              int(-line_length + aa))
         pad.SetSize(pcbnew.VECTOR2I(via_d,via_d))
         pad.SetShape(pcbnew.PAD_SHAPE_CIRCLE)
         pad.SetAttribute(pcbnew.PAD_ATTRIB_PTH)
@@ -218,13 +231,13 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
         pad.SetPosition(pos)
         self.module.Add(pad)
 
-        # Vertical trace to get under the coils.
+        # Vertical track to get under the coils.
         self.draw.SetLayer(pcbnew.B_Cu) 
         self.draw.Line(-start_x - aa, -line_length + aa,
-                       -start_x - aa, -line_length - (self.turns-1)*pitch - self.stub_length - self.min_radius)
+                       -start_x - aa, -line_length - aa - (self.turns-1)*pitch - self.stub_length - self.min_radius)
         
         # Add pad for other side of the coil
-        pos = pcbnew.VECTOR2I(int(-start_x - aa), int(-arc_start_y - self.stub_length))
+        pos = pcbnew.VECTOR2I(int(-start_x - aa), int(-arc_start_y - aa - self.stub_length))
         pad = pcbnew.PAD(self.module)
         pad.SetSize(pcbnew.VECTOR2I(self.trace_width,via_d))
         pad.SetAttribute(pcbnew.PAD_ATTRIB_SMD)

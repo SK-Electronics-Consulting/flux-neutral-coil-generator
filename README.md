@@ -45,10 +45,12 @@ TODO!
 
 This tool will have several limitations in it's current state.
 
-1. It will not check for manufacturability of the coil
+1. It will not check for manufacturability of the coil.  However, you can do this in PCBNew.
 1. It will not check all conditions of if it will make a shape that's not plausible.
 1. At it's current setup, it will only generate a 2 layer configuration. 
 
 ## To dos!
 
 1. TODO: Account for trace thickness in gap creation.  
+1. TODO: Fix the sign of the various variables. It feels like often the +/- is counter intuitive within the calculations.
+1. TODO: Add some niceties in documentation within the Wizard
