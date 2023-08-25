@@ -1,6 +1,6 @@
 # Flux Neutral Coil Generator
 
-Big thanks to Starfish Neuro for sponsoring this work and allowing me to share it!
+Big thanks to [Starfish Neuroscience](https://starfishneuroscience.com/) for sponsoring this work and allowing me to share it!
 
 ## Background
 
@@ -46,11 +46,13 @@ TODO!
 This tool will have several limitations in it's current state.
 
 1. It will not check for manufacturability of the coil.  However, you can do this in PCBNew.
-1. It will not check all conditions of if it will make a shape that's not plausible.
+1. It will not check all conditions of if it will make a shape that's not plausible.  Specifically, using a min-radius of 0 will cause issues with the vias. 
 1. At it's current setup, it will only generate a 2 layer configuration. 
+1. The footprint needs to have a Net Tie added after it's exported out of the Wizard.  This will prevent the DRC errors.
 
 ## To dos!
 
 1. TODO: Account for trace thickness in gap creation.  
 1. TODO: Fix the sign of the various variables. It feels like often the +/- is counter intuitive within the calculations.
 1. TODO: Add some niceties in documentation within the Wizard
+1. TODO: Figure out how to programmatically add a Net Tie
