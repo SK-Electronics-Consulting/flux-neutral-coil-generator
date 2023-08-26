@@ -39,7 +39,20 @@ TODO but should be maybe-sorta similar to Linux
 
 ## Usage
 
-TODO!
+1. Launch by opening KiCAD -> Footprint Editor -> Footprint Wizard (second icon, the one with the red star)
+1. If it was installed correctly, it should show up at the end of the list of footprint wizards.
+1. Select and click OK. 
+1. Adjust the parameters as needed.  Please note the limitations below, especially the inner layers not showing up in preview.
+1. Export the footprint to the editor. (Last icon in the upper left.)
+1. Save this to an appropriate footprint library.  
+1. Add the Net Tie.  NOTE: This step is mandatory for the DRC to come out clean.  It should be done automatically, but it's a limitation of KiCAD. 
+    1. Open the Footprint Properties by using the menu File -> Footprint Properties.
+    1. Select the Clearance Overrides and Settings tab.
+    1. In the Net Ties section at the bottom, add an entry of "1,2,3"
+    1. Click OK and save the footprint. 
+1. From here, just use this as a footprint for an inductor in KiCAD, as it follows the normal design flow.
+
+Note: the "why" you'd want a flux-neutral coil is kinda up to you.  
 
 ## Limitations
 
@@ -47,12 +60,11 @@ This tool will have several limitations in it's current state.
 
 1. It will not check for manufacturability of the coil.  However, you can do this in PCBNew.
 1. It will not check all conditions of if it will make a shape that's not plausible.  Specifically, using a min-radius of 0 will cause issues with the vias. 
-1. At it's current setup, it will only generate a 2 layer configuration. 
+1. At it's current setup, it will only generate a 2 layer configuration. Using more than 2 layers will probably need a different topology.
 1. The footprint needs to have a Net Tie added after it's exported out of the Wizard.  This will prevent the DRC errors.
+1. If setting the layers to an inner layer, the Footprint Wizard will not display correctly.  This is a bug/limitation of KiCAD.  Once it's exported, it will work correctly.  One alternative to this is to generate the shape with F_Cu/B_Cu, and then do a text replacement after the fact.
 
 ## To dos!
 
-1. TODO: Account for trace thickness in gap creation.  
 1. TODO: Fix the sign of the various variables. It feels like often the +/- is counter intuitive within the calculations.
-1. TODO: Add some niceties in documentation within the Wizard
 1. TODO: Figure out how to programmatically add a Net Tie
