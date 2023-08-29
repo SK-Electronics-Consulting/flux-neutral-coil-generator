@@ -411,3 +411,9 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
         pad.SetNumber(2)
         pad.SetName("2")
         self.module.Add(pad)
+
+        """
+        Add Net Tie Group to the footprint. This allows the DRC to understand 
+        that the shorting traces are OK for this component
+        """
+        self.module.AddNetTiePadGroup("1,2,3")
