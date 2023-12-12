@@ -37,7 +37,9 @@ TODO but should be similar to Linux
 
 ### For Windows
 
-TODO but should be maybe-sorta similar to Linux
+1. Clone the Repo into `[Documents]\KiCad\7.0\scripting`.
+
+NOTE: Symbolic links don't seem to work within Windows.
 
 ## Usage
 
