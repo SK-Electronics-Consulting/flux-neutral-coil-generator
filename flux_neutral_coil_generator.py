@@ -278,7 +278,7 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
         pad.SetSize(pcbnew.VECTOR2I(via_d, via_d))
         pad.SetShape(pcbnew.PAD_SHAPE_CIRCLE)
         pad.SetAttribute(pcbnew.PAD_ATTRIB_PTH)
-        pad.SetLayerSet(pcbnew.LSET_AllCuMask())
+        pad.SetLayerSet(pcbnew.LSET.AllCuMask())
         pad.SetDrillSize(pcbnew.VECTOR2I(self.via_hole, self.via_hole))
 
         for ii in range(self.turns):
@@ -361,7 +361,7 @@ class FluxNeutralCoilGen(FootprintWizardBase.FootprintWizard):
         pad.SetSize(pcbnew.VECTOR2I(via_d, via_d))
         pad.SetShape(pcbnew.PAD_SHAPE_CIRCLE)
         pad.SetAttribute(pcbnew.PAD_ATTRIB_PTH)
-        pad.SetLayerSet(pcbnew.LSET_AllCuMask())
+        pad.SetLayerSet(pcbnew.LSET.AllCuMask())
         pad.SetDrillSize(pcbnew.VECTOR2I(self.via_hole, self.via_hole))
         pad.SetNumber(pad_number)
         pad.SetName(str(pad_number))
